@@ -23,9 +23,9 @@ public class main extends Application{
 	
 	public Scene scene;
 	public BorderPane borderpane,bottompane,toppane,startuppane;
-	public GridPane combogrid,startupgrid;
+	public GridPane combogrid,startupgrid,centergrid;
 	public HBox nexthbox,gaphbox,sethbox,startgaphbox;
-	public Button nextb,addb,delb,setb,detailb,entryb,backb;
+	public Button nextb,addb,delb,setb,detailb,entryb,backb,addDivb,rmdivb;
 	public Stage primaryStage;
 	
 	
@@ -128,6 +128,13 @@ public class main extends Application{
 			setb = new Button("Settings");
 			backb = new Button("Back");
 			
+			setb.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent arg0){
+					// TODO Auto-generated method stub
+					setMenu(e);
+				}
+			});
+			
 			backb.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle(ActionEvent arg0) {
@@ -164,6 +171,37 @@ public class main extends Application{
 			
 		}
 	
-	
+	public void setMenu(final Stage e){
+		borderpane = new BorderPane();
+		centergrid = new GridPane();
+		toppane = new BorderPane();
+		
+		addDivb = new Button("+");
+		rmdivb = new Button("x");
+		backb = new Button("Back");
+		
+		backb.setOnAction(new EventHandler<ActionEvent>() {
+			
+			public void handle(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				entryView(e);
+			}
+		});
+		
+		
+		toppane.setPadding(new Insets(10,10,0,10));
+		
+		centergrid.add(addDivb, 0, 0);
+		centergrid.add(rmdivb, 0, 1);
+		
+		centergrid.setAlignment(Pos.CENTER);
+		
+		toppane.setLeft(backb);
+		borderpane.setCenter(centergrid);
+		borderpane.setTop(toppane);
+		scene = new Scene(borderpane,800,600);
+		e.setScene(scene);
+		e.show();
+	}
 	
 }
