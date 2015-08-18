@@ -40,6 +40,13 @@ public class main extends Application{
 	public ComboBox deptbox,divbox;
 	public TextField setdepttextf,setdivtextf;
 	
+	String sqlCreate = "CREATE TABLE IF NOT EXISTS TimeScheduler"  
+    + "  (id           	  INTEGER,"
+    + "   dept            VARCHAR(50),"
+    + "   div             VARCHAR(50),"
+    + "   hout         INTEGER )";
+
+	
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	static final String DB_URL = "jdbc:mysql://localhost/Scheduler";
 	static final String USER = "root";
