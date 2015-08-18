@@ -22,11 +22,16 @@ public class main extends Application{
 	
 	
 	public Scene scene;
-	public BorderPane borderpane,bottompane,toppane,startuppane;
+
+	public BorderPane borderpane,bottompane,toppane,startuppane,settingspane;
+
 	public GridPane combogrid,startupgrid,centergrid;
-	public HBox nexthbox,gaphbox,sethbox,startgaphbox;
-	public Button nextb,addb,delb,setb,detailb,entryb,backb,addDivb,rmdivb;
+
+	public HBox nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
+	public Button nextb,addb,delb,setb,detailb,entryb,backb,addDivb1,rmdivb1,addDivb2,rmdivb2;
 	public Stage primaryStage;
+	public ComboBox deptbox,divbox;
+	public TextField setdepttextf,setdivtextf;
 	
 	
 	public static void main(String args[]) {
@@ -38,7 +43,7 @@ public class main extends Application{
 	// CALLING FRAME FUNCTIONS
 		startupWindow(primaryStage);
 		
-		
+	
 		
 	}
 	
@@ -49,11 +54,20 @@ public class main extends Application{
 		startgaphbox = new HBox();
 		detailb = new Button("Detail view");
 		entryb = new Button("entry view");
+
+	//	CSS OF STARUPWINDOW	
+		
+		startuppane.setStyle("-fx-base: #217d63;");
+		entryb.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
+		detailb.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
+		
+
+	// ACTIONS OF STARTUPWINDOW	
 		
 		entryb.setOnAction(new EventHandler<ActionEvent>() {
 			
 			public void handle(ActionEvent ae) {
-				// TODO Auto-generated method stub
+				
 				entryView(primaryStage);
 			}
 		});
@@ -91,11 +105,11 @@ public class main extends Application{
 				    );
 		//COMBOBOX DECLARATION
 			
-			ComboBox deptbox = new ComboBox(options);		
+			deptbox = new ComboBox(options);		
 			deptbox.setPrefWidth(200);
 			deptbox.setValue("select the departments");
 			
-			ComboBox divbox = new ComboBox();
+			divbox = new ComboBox();
 			divbox.setPrefWidth(200);
 			divbox.setValue("select the divisions");
 			
@@ -127,23 +141,31 @@ public class main extends Application{
 			delb = new Button("x");
 			setb = new Button("Settings");
 			backb = new Button("Back");
+		
+		// BUTTON EVENT HANDLERS	
 			
 			setb.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent arg0){
-					// TODO Auto-generated method stub
-					setMenu(e);
+					
+					entryset(e);
 				}
 			});
 			
 			backb.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle(ActionEvent arg0) {
-					// TODO Auto-generated method stub
+					
 					startupWindow(e);
 				}
 			});
+
+//			nextb.setOnAction(new EventHandler<ActionEvent>() {
+//				
+//				public void handle(ActionEvent b) {
+//					
+//				}
+//			});
 			
-			toppane.setPadding(new Insets(10,10,0,10));
 			
 		//ADDING SECTION
 
@@ -161,8 +183,9 @@ public class main extends Application{
 			bottompane.setRight(nexthbox);
 			borderpane.setCenter(combogrid);
 			borderpane.setTop(toppane);
+			borderpane.setStyle("-fx-base: #217d63;");
 			
-			
+			toppane.setPadding(new Insets(10,10,0,10));		//PADDINGS OF BACKBTN AND SETTINGSBTN
 	        
 			scene = new Scene(borderpane,800,600);
 			e.setScene(scene);
@@ -171,37 +194,62 @@ public class main extends Application{
 			
 		}
 	
-	public void setMenu(final Stage e){
+
+
+	public void entryset(final Stage e){
+		
 		borderpane = new BorderPane();
 		centergrid = new GridPane();
 		toppane = new BorderPane();
 		
-		addDivb = new Button("+");
-		rmdivb = new Button("x");
+		settinggaphbox = new HBox();
+		settinggaphbox .setMinSize(10, 10);
+		
+		addDivb1 = new Button("+");
+		rmdivb1 = new Button("x");
+		addDivb2 = new Button("+");
+		rmdivb2 = new Button("x");
 		backb = new Button("Back");
+		
+		
+		borderpane.setStyle("-fx-base: #217d63;");
+		addDivb1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
+		rmdivb1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
 		
 		backb.setOnAction(new EventHandler<ActionEvent>() {
 			
 			public void handle(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				
 				entryView(e);
 			}
 		});
 		
+		    setdepttextf = new TextField ();
+		    setdepttextf.setText("dept");
+		    setdivtextf = new TextField();
+		    setdivtextf .setText("division");
 		
 		toppane.setPadding(new Insets(10,10,0,10));
+
 		
-		centergrid.add(addDivb, 0, 0);
-		centergrid.add(rmdivb, 0, 1);
+		centergrid.add(setdepttextf, 0, 0);
+		centergrid.add(addDivb1, 1, 0);
+		centergrid.add(rmdivb1, 2, 0);
+		centergrid.add(settinggaphbox, 0, 1);
+		centergrid.add(setdivtextf, 0, 2);
+		centergrid.add(addDivb2, 1, 2);
+		centergrid.add(rmdivb2, 2, 2);
 		
 		centergrid.setAlignment(Pos.CENTER);
 		
 		toppane.setLeft(backb);
+		//borderpane.setStyle("-fx-base: #217d63;");
 		borderpane.setCenter(centergrid);
 		borderpane.setTop(toppane);
 		scene = new Scene(borderpane,800,600);
 		e.setScene(scene);
 		e.show();
 	}
+
 	
 }
