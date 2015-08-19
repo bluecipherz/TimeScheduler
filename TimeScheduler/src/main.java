@@ -10,6 +10,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
@@ -17,6 +19,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class main extends Application{
 	
@@ -33,6 +40,13 @@ public class main extends Application{
 	public ComboBox deptbox,divbox;
 	public TextField setdepttextf,setdivtextf;
 	
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	static final String DB_URL = "jdbc:mysql://localhost/Scheduler";
+	static final String USER = "root";
+	static final String PASS = "";
+	
+	public Connection con = null;
+	public Statement stat = null;
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -40,10 +54,17 @@ public class main extends Application{
 	public void start(Stage primaryStage) {	
 		primaryStage.setTitle("JavaFX Welcome");
 		
+	// DATABASE CONNECTION
+		try {
+		Class.forName("com.mysql.jdbc.Driver");
+		System.out.println("Connecting to database");
+		con = DriverManager.getConnection(DB_URL,USER,PASS);
+		System.out.println("Creating Statement");
+		stat = con.createStatement();
+		}catch(SQLException e) {System.out.println(e);}catch(ClassNotFoundException e) {System.out.println(e);}
+		
 	// CALLING FRAME FUNCTIONS
 		startupWindow(primaryStage);
-		
-	
 		
 	}
 	
@@ -94,6 +115,7 @@ public class main extends Application{
 	}
 	
 	public Scene entryView(final Stage e) {
+		
 			
 			
 			ObservableList<String> options = 
