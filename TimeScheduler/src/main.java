@@ -22,6 +22,7 @@ import javafx.stage.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -40,20 +41,15 @@ public class main extends Application{
 	public ComboBox deptbox,divbox;
 	public TextField setdepttextf,setdivtextf;
 	
-	String sqlCreate = "CREATE TABLE IF NOT EXISTS TimeScheduler"  
-    + "  (id           	  INTEGER,"
+	public String sqlCreate = "CREATE TABLE IF NOT EXISTS TimeScheduler"  
+    + "  (id           	  INTEGER primary key,"
     + "   dept            VARCHAR(50),"
     + "   div             VARCHAR(50),"
     + "   hout         INTEGER )";
 
-	
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://localhost/Scheduler";
-	static final String USER = "root";
-	static final String PASS = "";
-	
-	public Connection con = null;
-	public Statement stat = null;
+	public Connection connection = null;
+	public Statement statement;
+	public ResultSet rs;
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -63,12 +59,37 @@ public class main extends Application{
 		
 	// DATABASE CONNECTION
 		try {
-		Class.forName("com.mysql.jdbc.Driver");
-		System.out.println("Connecting to database");
-		con = DriverManager.getConnection(DB_URL,USER,PASS);
-		System.out.println("Creating Statement");
-		stat = con.createStatement();
-		}catch(SQLException e) {System.out.println(e);}catch(ClassNotFoundException e) {System.out.println(e);}
+			Class.forName("org.sqlite.JDBC");
+			connection = DriverManager.getConnection("jdbc:sqlite:sample.db");
+			statement = connection.createStatement();
+			statement.setQueryTimeout(30);
+			statement.executeUpdate("drop table if exists timeScheduler");
+			  statement.executeUpdate("create table if not exists timeScheduler (id integer, dept string, div string)");
+			  statement.executeUpdate("insert into timeScheduler values(1, 'BCA','a')");
+			  statement.executeUpdate("insert into timeScheduler values(2, 'BCA','b')");
+			  statement.executeUpdate("insert into timeScheduler values(3, 'BCom','as')");
+			  ResultSet rs = statement.executeQuery("select * from timeScheduler");
+			System.out.println("worked");
+			while (rs.next()) {
+				System.out.print("id = "+rs.getString("id"));
+				System.out.print(" dept = "+rs.getString("dept"));
+				System.out.print(" div = "+rs.getString("div")+"\n");
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println(e);
+		}
+		finally{
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+				System.out.println(e2);
+			}
+		}
 		
 	// CALLING FRAME FUNCTIONS
 		startupWindow(primaryStage);
