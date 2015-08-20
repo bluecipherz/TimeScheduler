@@ -1,23 +1,14 @@
 
-import com.sun.javafx.geom.*;
-
 import javafx.application.*;
 import javafx.collections.*;
-import javafx.embed.swing.*;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.*;
 
 import java.sql.Connection;
@@ -38,18 +29,15 @@ public class main extends Application{
 	public HBox nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
 	public Button nextb,addb,delb,setb,detailb,entryb,backb,addDivb1,rmdivb1,addDivb2,rmdivb2;
 	public Stage primaryStage;
-	public ComboBox deptbox,divbox;
+	public ComboBox<String> deptbox,divbox;
 	public TextField setdepttextf,setdivtextf;
 	
-	public String sqlCreate = "CREATE TABLE IF NOT EXISTS TimeScheduler"  
-    + "  (id           	  INTEGER primary key,"
-    + "   dept            VARCHAR(50),"
-    + "   div             VARCHAR(50),"
-    + "   hout         INTEGER )";
+	public ObservableList<String> options;
 
 	public Connection connection = null;
 	public Statement statement;
-	public ResultSet rs,r1;
+	public ResultSet rs;
+	
 	
 	public static void main(String args[]) {
 		launch(args);
@@ -65,38 +53,24 @@ public class main extends Application{
 			statement.setQueryTimeout(30);
 			statement.executeUpdate("drop table if exists timeScheduler");
 			  statement.executeUpdate("create table if not exists timeScheduler (id integer, dept string, div string)");
-			  statement.executeUpdate("insert into timeScheduler values(1, 'BCA','a')");
-			  statement.executeUpdate("insert into timeScheduler values(2, 'BCA','b')");
-			  statement.executeUpdate("insert into timeScheduler values(3, 'BCom','as')");
-			  ResultSet rs = statement.executeQuery("select * from timeScheduler");
-			System.out.println("worked");
-			while (rs.next()) {
-				System.out.print("id = "+rs.getString("id"));
-				System.out.print(" dept = "+rs.getString("dept"));
-				System.out.print(" div = "+rs.getString("div")+"\n");
-				
-			}
+			  statement.executeUpdate("insert into timeScheduler values(1, 'BCA','A')");
+			  statement.executeUpdate("insert into timeScheduler values(2, 'BCA','B')");
+			  statement.executeUpdate("insert into timeScheduler values(3, 'BCom','A')");
+			  statement.executeUpdate("insert into timeScheduler values(4, 'BCom','B')");
+			  statement.executeUpdate("insert into timeScheduler values(5, 'BCom','C')");
+			  statement.executeUpdate("insert into timeScheduler values(6, 'BCom','D')");
+			  statement.executeUpdate("insert into timeScheduler values(7, 'BBA','A')");
+			  statement.executeUpdate("insert into timeScheduler values(8, 'Bsc_English','A')");
+			  
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println(e);
 		}
-		finally{
-			try {
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (Exception e2) {
-				// TODO: handle exception
-				System.out.println(e2);
-			}
-		}
-		
-	// CALLING FRAME FUNCTIONS
-		startupWindow(primaryStage);
+		startupWindow(primaryStage,statement);
 		
 	}
 	
-	public Scene startupWindow(final Stage primaryStage){
+	public void startupWindow(final Stage primaryStage,final Statement statement){
 		
 		startuppane = new BorderPane();
 		startupgrid = new GridPane();
@@ -117,7 +91,12 @@ public class main extends Application{
 			
 			public void handle(ActionEvent ae) {
 				
-				entryView(primaryStage);
+				try {
+					entryView(primaryStage,statement);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -139,27 +118,29 @@ public class main extends Application{
 		scene = new Scene(startuppane,800,600);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		return scene;
 	}
 	
-	public Scene entryView(final Stage e) {
+	public void entryView(final Stage primaryStage,final Statement statement) throws SQLException {
 		
 			
 			
-			ObservableList<String> options = 
-				    FXCollections.observableArrayList(
-				        "BCA",
-				        "BCOM",
-				        "BBA",
-				        "BSc"
-				    );
 		//COMBOBOX DECLARATION
 			
-			deptbox = new ComboBox(options);		
+			deptbox = new ComboBox<String>();
+			
+			loadDept(statement);
+			deptbox.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent event){try {
+					
+						loadDiv(statement,event);
+						
+						} catch (SQLException e) {e.printStackTrace();}
+				}});
+			
 			deptbox.setPrefWidth(200);
 			deptbox.setValue("select the departments");
 			
-			divbox = new ComboBox();
+			divbox = new ComboBox<String>();
 			divbox.setPrefWidth(200);
 			divbox.setValue("select the divisions");
 			
@@ -197,7 +178,7 @@ public class main extends Application{
 			setb.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent arg0){
 					
-					entryset(e);
+					entryset(primaryStage,statement);
 				}
 			});
 			
@@ -205,7 +186,7 @@ public class main extends Application{
 				
 				public void handle(ActionEvent arg0) {
 					
-					startupWindow(e);
+					startupWindow(primaryStage,statement);
 				}
 			});
 
@@ -238,15 +219,12 @@ public class main extends Application{
 			toppane.setPadding(new Insets(10,10,0,10));		//PADDINGS OF BACKBTN AND SETTINGSBTN
 	        
 			scene = new Scene(borderpane,800,600);
-			e.setScene(scene);
-			e.show();
-			return scene;
+			primaryStage.setScene(scene);
+			primaryStage.show();
 			
 		}
 	
-
-
-	public void entryset(final Stage e){
+	public void entryset(final Stage primaryStage,final Statement statement){
 		
 		borderpane = new BorderPane();
 		centergrid = new GridPane();
@@ -270,7 +248,12 @@ public class main extends Application{
 			
 			public void handle(ActionEvent arg0) {
 				
-				entryView(e);
+				try {
+					entryView(primaryStage,statement);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -297,9 +280,43 @@ public class main extends Application{
 		borderpane.setCenter(centergrid);
 		borderpane.setTop(toppane);
 		scene = new Scene(borderpane,800,600);
-		e.setScene(scene);
-		e.show();
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
 
+	public ComboBox<String> loadDept(final Statement statement) throws SQLException{
+		
+		rs = statement.executeQuery("select * from TimeScheduler");
+		try{
+		while (rs.next()) {
+			if(deptbox.getItems().contains((rs.getString("dept")))){
+				continue;
+			}
+			else
+				deptbox.getItems().add(rs.getString("dept"));
+		}
+		}catch(Exception e){System.out.println(e);}
+		return deptbox;
+	}
 	
+	public ComboBox<String> loadDiv(final Statement statement,ActionEvent event) throws SQLException{
+		try{
+			divbox.getItems().clear();
+			divbox.setValue("select the division");
+		String name = "'"+deptbox.getValue()+"'";
+		rs = statement.executeQuery("select * from TimeScheduler where dept = " + name);
+		}catch(Exception e){System.out.println(e);}
+		try{
+		while (rs.next()) {
+			if(divbox.getItems().contains((rs.getString("div")))){
+				continue;
+			}
+			else
+				divbox.getItems().add(rs.getString("div"));
+		}
+		}catch(Exception e){System.out.println(e);}
+		rs.close();
+		return divbox;
+		
+	}
 }
