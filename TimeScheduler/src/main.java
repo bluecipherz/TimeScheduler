@@ -49,7 +49,7 @@ public class main extends Application{
 
 	public Connection connection = null;
 	public Statement statement;
-	public ResultSet rs;
+	public ResultSet rs,r1;
 	
 	public static void main(String args[]) {
 		launch(args);
