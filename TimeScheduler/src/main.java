@@ -1,11 +1,11 @@
-
 import javafx.application.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -119,6 +119,8 @@ public class main extends Application{
 			
 			deptbox = new ComboBox<String>();
 			
+			
+			
 			loadDept(statement);
 			deptbox.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent event){try {
@@ -160,8 +162,8 @@ public class main extends Application{
 		// BUTTONS DECLARATION
 			
 			nextb = new Button("Next");
-			new Button("+");
-			new Button("x");
+//			new Button("+");
+//			new Button("x");
 			setb = new Button("Settings");
 			backb = new Button("Back");
 		
@@ -178,6 +180,7 @@ public class main extends Application{
 				
 				public void handle(ActionEvent arg0) {
 					startupWindow(primaryStage,statement);
+					name = "";
 				}
 			});
 
@@ -187,6 +190,7 @@ public class main extends Application{
 					try {
 						createTable(statement,name);
 						insertMode(primaryStage,statement,name);
+						name="";
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						System.out.println(e);
@@ -259,32 +263,46 @@ public class main extends Application{
 			}
 		});
 		
-		    setdepttextf = new TextField ();
-		    setdepttextf.setText("dept");
-		    setdivtextf = new TextField();
-		    setdivtextf .setText("division");
+//		    setdepttextf = new TextField ();
+//		    setdepttextf.setText("dept");
+//		    setdivtextf = new TextField();
+//		    setdivtextf .setText("division");
 		
-		addDept1.setOnAction(new EventHandler<ActionEvent>() {
-
-			public void handle(ActionEvent event) {
-				deptfield = setdepttextf.getText();
-				try {
-					updateData(statement,deptfield);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					System.out.println(e);
-				}
-			}
-		});
+		ObservableList<String> options = 
+			    FXCollections.observableArrayList(
+			        "BCA",
+			        "BCOM"
+			   );
+		
+		ComboBox setdeptcombo = new ComboBox(options);
+		ComboBox setdivcombo = new ComboBox(options);
+		setdeptcombo.setPrefWidth(200);
+		setdivcombo.setPrefWidth(200);
+		setdeptcombo.setEditable(true);
+		setdivcombo .setEditable(true);
+		
+		
+//		addDept1.setOnAction(new EventHandler<ActionEvent>() {
+//
+//			public void handle(ActionEvent event) {
+//				deptfield = setdepttextf.getText();
+//				try {
+//					updateData(statement,deptfield);
+//				} catch (SQLException e) {
+//					// TODO Auto-generated catch block
+//					System.out.println(e);
+//				}
+//			}
+//		});
 		    
 		toppane.setPadding(new Insets(10,10,0,10));
 
 		
-		centergrid.add(setdepttextf, 0, 0);
+		centergrid.add(setdeptcombo, 0, 0);
 		centergrid.add(addDept1, 1, 0);
 		centergrid.add(rmdept1, 2, 0);
 		centergrid.add(settinggaphbox, 0, 1);
-		centergrid.add(setdivtextf, 0, 2);
+		centergrid.add(setdivcombo, 0, 2);
 		centergrid.add(addDivb2, 1, 2);
 		centergrid.add(rmdivb2, 2, 2);
 		
@@ -395,5 +413,4 @@ public class main extends Application{
 //		System.out.println("updateData : "+deptfield);
 		statement.executeUpdate("insert into timeScheduler values("+i+",'"+deptfield+"','A')");
 	}
-	
 }
