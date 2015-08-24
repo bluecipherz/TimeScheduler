@@ -23,13 +23,13 @@ public class main extends Application{
 	private BorderPane 			borderpane,bottompane,toppane,startuppane;
 	private GridPane 			startupgrid,centergrid;
 	private HBox 				nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
-	private Button 				nextb,setb,detailb,entryb,backb,addDivb1,rmdivb1,addDivb2,rmdivb2;
+	private Button 				nextb,setb,detailb,entryb,backb,addDept1,rmdept1,addDivb2,rmdivb2;
 	private ComboBox<String> 	deptbox,divbox,prd1,prd2,prd3,prd4,prd5,prd6;
 	private TextField 			setdepttextf,setdivtextf;
 	private Connection 			connection = null;
 	private Statement 			statement;
 	private ResultSet 			rs;
-	private String				name;
+	private String				name,deptfield,divfield;
 	
 	
 	public static void main(String args[]) {
@@ -68,8 +68,8 @@ public class main extends Application{
 		startuppane = new BorderPane();
 		startupgrid = new GridPane();
 		startgaphbox = new HBox();
-		detailb = new Button("Detail view");
-		entryb = new Button("entry view");
+		detailb = new Button("Detail Mode");
+		entryb = new Button("Entry Mode");
 
 	//	CSS OF STARUPWINDOW	
 		
@@ -110,6 +110,7 @@ public class main extends Application{
 		
 		scene = new Scene(startuppane,800,600);
 		primaryStage.setScene(scene);
+		primaryStage.setTitle("Welcome");
 		primaryStage.show();
 	}
 	
@@ -216,6 +217,7 @@ public class main extends Application{
 	        
 			scene = new Scene(borderpane,800,600);
 			primaryStage.setScene(scene);
+			primaryStage.setTitle("Entry Mode");
 			primaryStage.show();
 			
 		}
@@ -229,8 +231,8 @@ public class main extends Application{
 		settinggaphbox = new HBox();
 		settinggaphbox .setMinSize(10, 10);
 		
-		addDivb1 = new Button("+");
-		rmdivb1 = new Button("x");
+		addDept1 = new Button("+");
+		rmdept1 = new Button("x");
 		addDivb2 = new Button("+");
 		rmdivb2 = new Button("x");
 		backb = new Button("Back");
@@ -241,8 +243,8 @@ public class main extends Application{
 		
 		
 		borderpane.setStyle("-fx-base: #217d63;");
-		addDivb1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
-		rmdivb1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
+		addDept1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
+		rmdept1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
 		
 		backb.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -252,7 +254,7 @@ public class main extends Application{
 					entryView(primaryStage,statement);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println(e);
 				}
 			}
 		});
@@ -262,12 +264,25 @@ public class main extends Application{
 		    setdivtextf = new TextField();
 		    setdivtextf .setText("division");
 		
+		addDept1.setOnAction(new EventHandler<ActionEvent>() {
+
+			public void handle(ActionEvent event) {
+				deptfield = setdepttextf.getText();
+				try {
+					updateData(statement,deptfield);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					System.out.println(e);
+				}
+			}
+		});
+		    
 		toppane.setPadding(new Insets(10,10,0,10));
 
 		
 		centergrid.add(setdepttextf, 0, 0);
-		centergrid.add(addDivb1, 1, 0);
-		centergrid.add(rmdivb1, 2, 0);
+		centergrid.add(addDept1, 1, 0);
+		centergrid.add(rmdept1, 2, 0);
 		centergrid.add(settinggaphbox, 0, 1);
 		centergrid.add(setdivtextf, 0, 2);
 		centergrid.add(addDivb2, 1, 2);
@@ -281,55 +296,39 @@ public class main extends Application{
 		borderpane.setTop(toppane);
 		scene = new Scene(borderpane,800,600);
 		primaryStage.setScene(scene);
+		primaryStage.setTitle("Settings");
 		primaryStage.show();
 	}
 
 	public void insertMode(final Stage primaryStage,final Statement statement,String name){
 		
-		//COMBOBOX DECLARATION
-			
-			prd1 = new ComboBox();
-			prd2 = new ComboBox();
-			prd3 = new ComboBox();
-			prd4 = new ComboBox();
-			prd5 = new ComboBox();
-			prd6 = new ComboBox();
-			
-			prd1.setValue("period 1");
-			prd2.setValue("period 2");
-			prd3.setValue("period 3");
-			prd4.setValue("period 4");
-			prd5.setValue("period 5");
-			prd6.setValue("period 6");
-			
-//			prd1.setMouseTransparent(true);
-			
-			
-		//LAYOUT DECLARATION
 			borderpane = new BorderPane();
+			toppane = new BorderPane();
 			borderpane.setStyle("-fx-base: #217d63;");
-			
 			centergrid = new GridPane();
 			
-		//HBOX DECLARATION
+			backb = new Button("back");
 			
+			backb.setOnAction(new EventHandler<ActionEvent>() {
+
+				public void handle(ActionEvent arg0) {
+					try {
+						entryView(primaryStage,statement);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
 			
-			
-		// ADDING SECTION
-			centergrid.add(prd1, 0, 1);
-//			centergrid.add(, 0, 2);
-			centergrid.add(prd2, 0, 3);
-			centergrid.add(prd3, 0, 5);
-			centergrid.add(prd4, 0, 7);
-			centergrid.add(prd5, 0, 9);
-			centergrid.add(prd6, 0, 11);
-			
-			centergrid.setPadding(new Insets(10));
-			centergrid.setAlignment(Pos.CENTER);
 			
 			borderpane.setCenter(centergrid);
+			borderpane.setTop(toppane);
+			toppane.setLeft(backb);
 			
-			scene = new Scene(borderpane,800,500);
+			toppane.setPadding(new Insets(10));
+			
+			scene = new Scene(borderpane,800,600);
 			primaryStage.setTitle(name);
 			primaryStage.setScene(scene);
 			primaryStage.show();
@@ -378,9 +377,23 @@ public class main extends Application{
 	}
 	
 	public void createTable(final Statement statement,String name) throws SQLException{	
-		statement.executeUpdate("drop table if exists timeScheduler");
+		System.out.println(name);
+		statement.executeUpdate("drop table if exists "+name);
 		statement.executeUpdate("create table if not exists "+ name + "(id integer,name string,hour int)");
+		System.out.println(name+" table updated");
 //		statement.executeUpdate("insert into timeScheduler values(1, 'BCA','A')");
+	}
+	
+	public void updateData(final Statement statement,String deptfield) throws SQLException{
+		rs = statement.executeQuery("select * from TimeScheduler");
+		int i=1;
+		while(rs.next()){
+			i=i+1;
+		}
+		rs.close();
+		System.out.println("i = "+i);
+//		System.out.println("updateData : "+deptfield);
+		statement.executeUpdate("insert into timeScheduler values("+i+",'"+deptfield+"','A')");
 	}
 	
 }
