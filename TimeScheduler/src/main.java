@@ -1,6 +1,5 @@
 
 import javafx.application.*;
-import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -20,23 +19,17 @@ import java.sql.Statement;
 public class main extends Application{
 	
 	
-	public Scene scene;
-
-	public BorderPane borderpane,bottompane,toppane,startuppane,settingspane;
-
-	public GridPane combogrid,startupgrid,centergrid;
-
-	public HBox nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
-	public Button nextb,addb,delb,setb,detailb,entryb,backb,addDivb1,rmdivb1,addDivb2,rmdivb2;
-	public Stage primaryStage;
-	public ComboBox<String> deptbox,divbox;
-	public TextField setdepttextf,setdivtextf;
-	
-	public ObservableList<String> options;
-
-	public Connection connection = null;
-	public Statement statement;
-	public ResultSet rs;
+	private Scene 				scene;
+	private BorderPane 			borderpane,bottompane,toppane,startuppane;
+	private GridPane 			startupgrid,centergrid;
+	private HBox 				nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
+	private Button 				nextb,setb,detailb,entryb,backb,addDivb1,rmdivb1,addDivb2,rmdivb2;
+	private ComboBox<String> 	deptbox,divbox,prd1,prd2,prd3,prd4,prd5,prd6;
+	private TextField 			setdepttextf,setdivtextf;
+	private Connection 			connection = null;
+	private Statement 			statement;
+	private ResultSet 			rs;
+	private String				name;
 	
 	
 	public static void main(String args[]) {
@@ -121,9 +114,6 @@ public class main extends Application{
 	}
 	
 	public void entryView(final Stage primaryStage,final Statement statement) throws SQLException {
-		
-			
-			
 		//COMBOBOX DECLARATION
 			
 			deptbox = new ComboBox<String>();
@@ -131,8 +121,9 @@ public class main extends Application{
 			loadDept(statement);
 			deptbox.setOnAction(new EventHandler<ActionEvent>() {
 				public void handle(ActionEvent event){try {
-					
-						loadDiv(statement,event);
+						
+							name = returnName(event);
+							loadDiv(statement,event);
 						
 						} catch (SQLException e) {e.printStackTrace();}
 				}});
@@ -168,8 +159,8 @@ public class main extends Application{
 		// BUTTONS DECLARATION
 			
 			nextb = new Button("Next");
-			addb = new Button("+");
-			delb = new Button("x");
+			new Button("+");
+			new Button("x");
 			setb = new Button("Settings");
 			backb = new Button("Back");
 		
@@ -185,17 +176,22 @@ public class main extends Application{
 			backb.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle(ActionEvent arg0) {
-					
 					startupWindow(primaryStage,statement);
 				}
 			});
 
-//			nextb.setOnAction(new EventHandler<ActionEvent>() {
-//				
-//				public void handle(ActionEvent b) {
-//					
-//				}
-//			});
+			nextb.setOnAction(new EventHandler<ActionEvent>() {
+				
+				public void handle(ActionEvent b) {
+					try {
+						createTable(statement,name);
+						insertMode(primaryStage,statement,name);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						System.out.println(e);
+					}
+				}
+			});
 			
 			
 		//ADDING SECTION
@@ -238,6 +234,10 @@ public class main extends Application{
 		addDivb2 = new Button("+");
 		rmdivb2 = new Button("x");
 		backb = new Button("Back");
+		
+	// Adding Actions
+		
+		
 		
 		
 		borderpane.setStyle("-fx-base: #217d63;");
@@ -284,6 +284,57 @@ public class main extends Application{
 		primaryStage.show();
 	}
 
+	public void insertMode(final Stage primaryStage,final Statement statement,String name){
+		
+		//COMBOBOX DECLARATION
+			
+			prd1 = new ComboBox();
+			prd2 = new ComboBox();
+			prd3 = new ComboBox();
+			prd4 = new ComboBox();
+			prd5 = new ComboBox();
+			prd6 = new ComboBox();
+			
+			prd1.setValue("period 1");
+			prd2.setValue("period 2");
+			prd3.setValue("period 3");
+			prd4.setValue("period 4");
+			prd5.setValue("period 5");
+			prd6.setValue("period 6");
+			
+//			prd1.setMouseTransparent(true);
+			
+			
+		//LAYOUT DECLARATION
+			borderpane = new BorderPane();
+			borderpane.setStyle("-fx-base: #217d63;");
+			
+			centergrid = new GridPane();
+			
+		//HBOX DECLARATION
+			
+			
+			
+		// ADDING SECTION
+			centergrid.add(prd1, 0, 1);
+//			centergrid.add(, 0, 2);
+			centergrid.add(prd2, 0, 3);
+			centergrid.add(prd3, 0, 5);
+			centergrid.add(prd4, 0, 7);
+			centergrid.add(prd5, 0, 9);
+			centergrid.add(prd6, 0, 11);
+			
+			centergrid.setPadding(new Insets(10));
+			centergrid.setAlignment(Pos.CENTER);
+			
+			borderpane.setCenter(centergrid);
+			
+			scene = new Scene(borderpane,800,500);
+			primaryStage.setTitle(name);
+			primaryStage.setScene(scene);
+			primaryStage.show();
+	}
+	
 	public ComboBox<String> loadDept(final Statement statement) throws SQLException{
 		
 		rs = statement.executeQuery("select * from TimeScheduler");
@@ -303,7 +354,7 @@ public class main extends Application{
 		try{
 			divbox.getItems().clear();
 			divbox.setValue("select the division");
-		String name = "'"+deptbox.getValue()+"'";
+		name = "'"+deptbox.getValue()+"'";
 		rs = statement.executeQuery("select * from TimeScheduler where dept = " + name);
 		}catch(Exception e){System.out.println(e);}
 		try{
@@ -319,4 +370,17 @@ public class main extends Application{
 		return divbox;
 		
 	}
+
+	public String returnName(ActionEvent event){
+		String name = "'"+deptbox.getValue()+"'";
+		return name;
+		
+	}
+	
+	public void createTable(final Statement statement,String name) throws SQLException{	
+		statement.executeUpdate("drop table if exists timeScheduler");
+		statement.executeUpdate("create table if not exists "+ name + "(id integer,name string,hour int)");
+//		statement.executeUpdate("insert into timeScheduler values(1, 'BCA','A')");
+	}
+	
 }
