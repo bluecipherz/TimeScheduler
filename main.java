@@ -1,85 +1,61 @@
+package bcz;
 
-import com.sun.javafx.geom.*;
 
+import org.jsoup.Jsoup;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
-import javafx.application.*;
-import javafx.collections.*;
-import javafx.embed.swing.*;
-import javafx.geometry.Pos;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.geometry.Insets;
-import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.stage.*;
+import java.io.IOException;
 
-public class main extends Application {
-	public static void main(String args[]) {
-		launch(args);
-	}
-	public void start(Stage primaryStage) {	
-		primaryStage.setTitle("JavaFX Welcome");
-		
+/**
+ * Example program to list links from a URL.
+ */
+public class Main {
+    public static void main(String[] args) throws IOException {
+        String url = "http://www.bigbasket.com";
+        print("Fetching %s...", url);
 
-		Text scenetitle = new Text("Welcome");
-		scenetitle.setFont(Font.font("Tahoma",FontWeight.NORMAL,20));
-		
-		ObservableList<String> options = 
-			    FXCollections.observableArrayList(
-			        "BCA",
-			        "BCOM",
-			        "BBA",
-			        "BSc"
-			    );
-		
-		ComboBox deptbox = new ComboBox(options);
-		deptbox.setPrefWidth(200);
-		deptbox.setValue("select the departments");
-		
-		ComboBox divbox = new ComboBox();
-		divbox.setPrefWidth(200);
-		divbox.setValue("select the divisions");
-		
+        Document doc = Jsoup.connect(url).get();
+        Elements links = doc.select("a[rel]");
+//        Elements media = doc.select("[src]");
+//        Elements imports = doc.select("link[href]");
+        for (Element link : links) {
+        	System.out.println(link.text());
+        }
         
-		BorderPane borderpane = new BorderPane();
-		BorderPane bottompane = new BorderPane();
-		GridPane combogrid = new GridPane();
-		
-		bottompane.setPadding(new Insets(20));
-		borderpane.setBottom(bottompane);
-		
-		HBox nexthbox = new HBox();
-		//HBox centerhbox = new HBox();
-		Button nextb = new Button("Next");
-		//centerhbox.setMaxSize(200, 200);
-		
+//
+//        print("\nMedia: (%d)", media.size());
+//        for (Element src : media) {
+//            if (src.tagName().equals("img"))
+//                print(" * %s: <%s> %sx%s (%s)",
+//                        src.tagName(), src.attr("abs:src"), src.attr("width"), src.attr("height"),
+//                        trim(src.attr("alt"), 20));
+//            else
+//                print(" * %s: <%s>", src.tagName(), src.attr("abs:src"));
+//        }
+//
+//        print("\nImports: (%d)", imports.size());
+//        for (Element link : imports) {
+//            print(" * %s <%s> (%s)", link.tagName(),link.attr("abs:href"), link.attr("rel"));
+//        }
+//
+//        print("\nLinks: (%d)", links.size());
+//        for (Element link : links) {
+//            print(" * a: <%s>  (%s)", link.attr("abs:rel"), trim(link.text(), 35));
+//        }
+    }
 
-		
-		Button addb = new Button("+");
-		Button delb = new Button("x");
-		nexthbox.getChildren().add(nextb);
-		
-		combogrid.add(divbox, 0, 4);
-		combogrid.add(deptbox, 0, 0);
-		combogrid.setAlignment(Pos.CENTER);
-		
-		
-		//centerhbox.getChildren().add(deptbox);
-		//centerhbox.getChildren().add(divbox);
-		bottompane.setRight(nexthbox);
-		borderpane.setCenter(combogrid);
-		
-		
-        
-		Scene scene = new Scene(borderpane,800,600);
-		 
-		primaryStage.setScene(scene);
-		primaryStage.show();
-		
-	}
-	
-	
+    private static void print(String msg, Object... args) {
+        System.out.println(String.format(msg, args));
+    }
+
+    private static String trim(String s, int width) {
+        if (s.length() > width)
+            return s.substring(0, width-1) + ".";
+        else
+            return s;
+    }
 }
+
