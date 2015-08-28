@@ -1,11 +1,11 @@
+
 import javafx.application.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -29,7 +29,8 @@ public class main extends Application{
 	private Connection 			connection = null;
 	private Statement 			statement;
 	private ResultSet 			rs;
-	private String				name,deptfield,divfield;
+	private String				name,deptfield,divfield,deptname,divname;
+	private int					flag;
 	
 	
 	public static void main(String args[]) {
@@ -73,9 +74,6 @@ public class main extends Application{
 
 	//	CSS OF STARUPWINDOW	
 		
-		startuppane.setStyle("-fx-base: #217d63;");
-		entryb.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
-		detailb.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
 		
 
 	// ACTIONS OF STARTUPWINDOW	
@@ -109,27 +107,20 @@ public class main extends Application{
 		startupgrid .setMinSize(10, 10);
 		
 		scene = new Scene(startuppane,800,600);
+		scene.getStylesheets().add("css/stylesheet.css");
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Welcome");
 		primaryStage.show();
 	}
 	
 	public void entryView(final Stage primaryStage,final Statement statement) throws SQLException {
+		flag=0;
+		System.out.println(flag);
 		//COMBOBOX DECLARATION
 			
 			deptbox = new ComboBox<String>();
 			
-			
-			
 			loadDept(statement);
-			deptbox.setOnAction(new EventHandler<ActionEvent>() {
-				public void handle(ActionEvent event){try {
-						
-							name = returnName(event);
-							loadDiv(statement,event);
-						
-						} catch (SQLException e) {e.printStackTrace();}
-				}});
 			
 			deptbox.setPrefWidth(200);
 			deptbox.setValue("select the departments");
@@ -137,6 +128,31 @@ public class main extends Application{
 			divbox = new ComboBox<String>();
 			divbox.setPrefWidth(200);
 			divbox.setValue("select the divisions");
+			
+		//COMBOBOX ACTIONS
+			
+			deptbox.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent event){try {
+						
+							deptname =deptbox.getValue();
+							loadDiv(statement,event,deptname);
+							flag=1;
+							System.out.println(flag);
+						} catch (SQLException e) {e.printStackTrace();}
+				}});
+			
+			divbox.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent arg0) {
+					divname =divbox.getValue();
+					if(flag==1){
+						flag=2;
+					System.out.println(flag);
+					}
+				}
+			});
+			
 			
 		//BORDER PANE DECLARATION
 			
@@ -162,8 +178,8 @@ public class main extends Application{
 		// BUTTONS DECLARATION
 			
 			nextb = new Button("Next");
-//			new Button("+");
-//			new Button("x");
+			new Button("+");
+			new Button("x");
 			setb = new Button("Settings");
 			backb = new Button("Back");
 		
@@ -180,20 +196,22 @@ public class main extends Application{
 				
 				public void handle(ActionEvent arg0) {
 					startupWindow(primaryStage,statement);
-					name = "";
 				}
 			});
-
+			
 			nextb.setOnAction(new EventHandler<ActionEvent>() {
 				
 				public void handle(ActionEvent b) {
+
+					System.out.println(flag);
+					if(flag==2){
 					try {
-						createTable(statement,name);
-						insertMode(primaryStage,statement,name);
-						name="";
+						createTable(statement,deptname);
+						insertMode(primaryStage,statement,deptname,divname);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						System.out.println(e);
+					}
 					}
 				}
 			});
@@ -215,11 +233,11 @@ public class main extends Application{
 			bottompane.setRight(nexthbox);
 			borderpane.setCenter(combogrid);
 			borderpane.setTop(toppane);
-			borderpane.setStyle("-fx-base: #217d63;");
 			
-			toppane.setPadding(new Insets(10,10,0,10));		//PADDINGS OF BACKBTN AND SETTINGSBTN
+			toppane.setPadding(new Insets(10));		//PADDINGS OF BACKBTN AND SETTINGSBTN
 	        
 			scene = new Scene(borderpane,800,600);
+			scene.getStylesheets().add("css/stylesheet.css");
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Entry Mode");
 			primaryStage.show();
@@ -244,12 +262,6 @@ public class main extends Application{
 	// Adding Actions
 		
 		
-		
-		
-		borderpane.setStyle("-fx-base: #217d63;");
-		addDept1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
-		rmdept1.setStyle("-fx-font: 12 verdana; -fx-base: #5a716b;");
-		
 		backb.setOnAction(new EventHandler<ActionEvent>() {
 			
 			public void handle(ActionEvent arg0) {
@@ -263,46 +275,32 @@ public class main extends Application{
 			}
 		});
 		
-//		    setdepttextf = new TextField ();
-//		    setdepttextf.setText("dept");
-//		    setdivtextf = new TextField();
-//		    setdivtextf .setText("division");
+		    setdepttextf = new TextField ();
+		    setdepttextf.setText("dept");
+		    setdivtextf = new TextField();
+		    setdivtextf .setText("division");
 		
-		ObservableList<String> options = 
-			    FXCollections.observableArrayList(
-			        "BCA",
-			        "BCOM"
-			   );
-		
-		ComboBox setdeptcombo = new ComboBox(options);
-		ComboBox setdivcombo = new ComboBox(options);
-		setdeptcombo.setPrefWidth(200);
-		setdivcombo.setPrefWidth(200);
-		setdeptcombo.setEditable(true);
-		setdivcombo .setEditable(true);
-		
-		
-//		addDept1.setOnAction(new EventHandler<ActionEvent>() {
-//
-//			public void handle(ActionEvent event) {
-//				deptfield = setdepttextf.getText();
-//				try {
-//					updateData(statement,deptfield);
-//				} catch (SQLException e) {
-//					// TODO Auto-generated catch block
-//					System.out.println(e);
-//				}
-//			}
-//		});
+		addDept1.setOnAction(new EventHandler<ActionEvent>() {
+
+			public void handle(ActionEvent event) {
+				deptfield = setdepttextf.getText();
+				try {
+					updateData(statement,deptfield);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					System.out.println(e);
+				}
+			}
+		});
 		    
 		toppane.setPadding(new Insets(10,10,0,10));
 
 		
-		centergrid.add(setdeptcombo, 0, 0);
+		centergrid.add(setdepttextf, 0, 0);
 		centergrid.add(addDept1, 1, 0);
 		centergrid.add(rmdept1, 2, 0);
 		centergrid.add(settinggaphbox, 0, 1);
-		centergrid.add(setdivcombo, 0, 2);
+		centergrid.add(setdivtextf, 0, 2);
 		centergrid.add(addDivb2, 1, 2);
 		centergrid.add(rmdivb2, 2, 2);
 		
@@ -313,17 +311,30 @@ public class main extends Application{
 		borderpane.setCenter(centergrid);
 		borderpane.setTop(toppane);
 		scene = new Scene(borderpane,800,600);
+		scene.getStylesheets().add("css/stylesheet.css");
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Settings");
 		primaryStage.show();
 	}
 
-	public void insertMode(final Stage primaryStage,final Statement statement,String name){
+	public void insertMode(final Stage primaryStage,final Statement statement,String name1,String name2){
 		
 			borderpane = new BorderPane();
 			toppane = new BorderPane();
-			borderpane.setStyle("-fx-base: #217d63;");
+			
+			prd1= new ComboBox<String>();
+			prd2 = new ComboBox<String>();
+			
+			prd1.getItems().add("neeli");
+			prd1.getItems().add("varsha");
+			
+			prd1.setValue("period 1");
+			prd2.setValue("period 2");
+			
 			centergrid = new GridPane();
+			
+			centergrid.add(prd1, 0, 0);
+			centergrid.add(prd2, 0, 1);
 			
 			backb = new Button("back");
 			
@@ -340,14 +351,17 @@ public class main extends Application{
 			});
 			
 			
+			centergrid.setAlignment(Pos.CENTER);
 			borderpane.setCenter(centergrid);
 			borderpane.setTop(toppane);
 			toppane.setLeft(backb);
 			
 			toppane.setPadding(new Insets(10));
 			
+			
 			scene = new Scene(borderpane,800,600);
-			primaryStage.setTitle(name);
+			scene.getStylesheets().add("css/stylesheet.css");
+			primaryStage.setTitle(name1+"-"+name2);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 	}
@@ -367,12 +381,11 @@ public class main extends Application{
 		return deptbox;
 	}
 	
-	public ComboBox<String> loadDiv(final Statement statement,ActionEvent event) throws SQLException{
+	public ComboBox<String> loadDiv(final Statement statement,ActionEvent event,String deptname) throws SQLException{
 		try{
 			divbox.getItems().clear();
 			divbox.setValue("select the division");
-		name = "'"+deptbox.getValue()+"'";
-		rs = statement.executeQuery("select * from TimeScheduler where dept = " + name);
+		rs = statement.executeQuery("select * from TimeScheduler where dept = '" + deptname+"'");
 		}catch(Exception e){System.out.println(e);}
 		try{
 		while (rs.next()) {
@@ -388,12 +401,6 @@ public class main extends Application{
 		
 	}
 
-	public String returnName(ActionEvent event){
-		String name = "'"+deptbox.getValue()+"'";
-		return name;
-		
-	}
-	
 	public void createTable(final Statement statement,String name) throws SQLException{	
 		System.out.println(name);
 		statement.executeUpdate("drop table if exists "+name);
@@ -413,4 +420,5 @@ public class main extends Application{
 //		System.out.println("updateData : "+deptfield);
 		statement.executeUpdate("insert into timeScheduler values("+i+",'"+deptfield+"','A')");
 	}
+	
 }
