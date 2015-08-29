@@ -5,11 +5,14 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import javafx.stage.*;
+import javafx.util.StringConverter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class main extends Application{
 	
@@ -31,8 +36,8 @@ public class main extends Application{
 	private Connection 			connection = null;
 	private Statement 			statement;
 	private ResultSet 			rs;
-	private String				name,deptfield,divfield,deptname,divname;
-	private int					flag;
+	private String				name,deptfield,divfield,deptname,divname,pattern = "dd-MM-yyyy",prdlist[],day,month,year;
+	private int					flag,loader=0;
 	private DatePicker			datePicker;
 	
 	
@@ -125,12 +130,18 @@ public class main extends Application{
 			loadDept(statement);
 			
 			deptbox.setPrefWidth(200);
-			deptbox.setValue("select the departments");
 			
 			divbox = new ComboBox<String>();
 			divbox.setPrefWidth(200);
-			divbox.setValue("select the divisions");
 			
+			if(loader==0) {
+			deptbox.setValue("select the departments");
+			divbox.setValue("select the divisions");
+			}
+			if(loader==1) {
+				deptbox.setValue(deptname);
+				divbox.setValue(divname);
+			}
 		//COMBOBOX ACTIONS
 			
 			deptbox.setOnAction(new EventHandler<ActionEvent>() {
@@ -208,6 +219,7 @@ public class main extends Application{
 					try {
 						createTable(statement,deptname);
 						insertMode(primaryStage,statement,deptname,divname);
+						loader=1;
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						System.out.println(e);
@@ -318,6 +330,10 @@ public class main extends Application{
 	}
 
 	public void insertMode(final Stage primaryStage,final Statement statement,String name1,String name2){
+			
+			flag=0;
+			prdlist = new String[6];
+			
 		
 			borderpane = new BorderPane();
 			toppane = new BorderPane();
@@ -333,7 +349,48 @@ public class main extends Application{
 			prd5 = new ComboBox<String>();
 			prd6 = new ComboBox<String>();		
 			
+			/////////////////////////////////////////////
+			prd1.getItems().add("prd10");
+			prd1.getItems().add("prd11");
+			prd2.getItems().add("prd20");
+			prd2.getItems().add("prd21");
+			prd3.getItems().add("prd30");
+			prd3.getItems().add("prd31");
+			prd4.getItems().add("prd40");
+			prd4.getItems().add("prd41");
+			prd5.getItems().add("prd50");
+			prd5.getItems().add("prd51");
+			prd6.getItems().add("prd60");
+			prd6.getItems().add("prd61");
+			/////////////////////////////////////////////
+			
+			
 			datePicker = new DatePicker();
+			
+			StringConverter converter = new StringConverter<LocalDate>() {
+		        DateTimeFormatter dateFormatter = 
+		            DateTimeFormatter.ofPattern(pattern);
+		        
+		        @Override
+		        public String toString(LocalDate date) {
+		            if (date != null) {
+		                return dateFormatter.format(date);
+		            } else {
+		                return "";
+		            }
+		        }
+		        @Override
+		        public LocalDate fromString(String string) {
+		            if (string != null && !string.isEmpty()) {
+		                return LocalDate.parse(string, dateFormatter);
+		            } else {
+		                return null;
+		            }
+		        }
+		    };           
+		    datePicker.setConverter(converter);
+		    datePicker.setPromptText(pattern.toLowerCase());
+			
 			datePicker.setValue(LocalDate.now());
 			datePicker.setId("datePicker");
 			
@@ -343,6 +400,13 @@ public class main extends Application{
 			prd4.setValue("period 4");
 			prd5.setValue("period 5");
 			prd6.setValue("period 6");
+			
+			prd1.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[0] =prd1.getValue();  }});
+			prd2.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[1] =prd2.getValue();  }});
+			prd3.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[2] =prd3.getValue();  }});
+			prd4.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[3] =prd4.getValue();  }});
+			prd5.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[4] =prd5.getValue();  }});
+			prd6.setOnAction(new EventHandler<ActionEvent>() { public void handle(ActionEvent arg0) { if(flag<6){flag++;}  prdlist[5] =prd6.getValue();  }});
 			
 			centergrid = new GridPane();
 			
@@ -354,8 +418,7 @@ public class main extends Application{
 			centergrid.add(prd6, 0, 5);
 			
 			backb = new Button("back");
-			nextb = new Button("next");
-			finishb =  new Button("finish");
+			nextb = new Button("ok");
 			
 			backb.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -369,8 +432,41 @@ public class main extends Application{
 				}
 			});
 			
+			nextb.setOnAction(new EventHandler<ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent arg0) {
+					if(flag==6) {
+						day = Integer.toString(datePicker.getValue().getDayOfMonth());
+						month = Integer.toString(datePicker.getValue().getMonthValue());
+						year = Integer.toString(datePicker.getValue().getYear());
+						try {
+							updateTable(statement,prdlist,deptname,divname,day,month,year);
+						} catch (SQLException e1) {
+							System.out.println(e1);
+						}
+						for(int i=0;i<6;i++) {
+							prdlist[i]=null;
+						}
+						flag=0;
+						try {
+							entryView(primaryStage,statement);
+						} catch (SQLException e) {
+							System.out.println(e);
+						}
+						
+		                Alert alert = new Alert(AlertType.INFORMATION);
+		                alert.setTitle("Data Added");
+		                alert.setHeaderText(null);
+		                alert.setContentText(deptname+"-"+divname+" updated");
+		                alert.showAndWait();
+		                
+						
+					}
+				}
+			});
+			
 			bottomgrid.add(nextb, 0, 0);
-			bottomgrid.add(finishb, 1, 0);
 			
 			nexthbox.getChildren().add(bottomgrid);
 			nexthbox.setPadding(new Insets(20));
@@ -430,7 +526,14 @@ public class main extends Application{
 
 	public void createTable(final Statement statement,String name) throws SQLException{
 		statement.executeUpdate("drop table if exists "+name);
-		statement.executeUpdate("create table if not exists "+ name + "(id integer,name string,hour int)");
+		statement.executeUpdate("create table if not exists "+ name 
+				+ "(id integer,"
+				+ "teacher string,"
+				+ "day int,"
+				+ "month int,"
+				+ "year int,"
+				+ "dept string,"
+				+ "div string)");
 		System.out.println(name+" table updated");
 //		statement.executeUpdate("insert into timeScheduler values(1, 'BCA','A')");
 	}
@@ -447,4 +550,32 @@ public class main extends Application{
 		statement.executeUpdate("insert into timeScheduler values("+i+",'"+deptfield+"','A')");
 	}
 	
+	public void updateTable(final Statement statement,String[] prdlist,String deptname,String divname,String day,String month,String year) throws SQLException {
+		
+		statement.executeUpdate("insert into "+deptname+" values("+1+",'"+prdlist[0]+"',"+Integer.parseInt(day)+","+Integer.parseInt(month)+","+Integer.parseInt(year)+",'"+deptname+"','"+divname+"')");
+		rs =statement.executeQuery("select * from "+deptname);
+		while(rs.next()) {
+			System.out.println(rs);
+//			System.out.println(rs.getString("teacher"));
+//			System.out.println(rs.getString("day"));
+//			System.out.println(rs.getString("month"));
+//			System.out.println(rs.getString("year"));
+//			System.out.println(rs.getString("dept"));
+//			System.out.println(rs.getString("div"));
+		}
+		
+//		teacher string,"
+//				+ "day int,"
+//				+ "month int,"
+//				+ "year int,"
+//				+ "dept string,"
+//				+ "div string,"
+//				+ "hour int
+		
+		
+		
+		
+		
+	}
+
 }
