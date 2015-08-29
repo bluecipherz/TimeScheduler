@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -15,15 +16,16 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 public class main extends Application{
 	
 	
 	private Scene 				scene;
 	private BorderPane 			borderpane,bottompane,toppane,startuppane;
-	private GridPane 			startupgrid,centergrid;
+	private GridPane 			startupgrid,centergrid,bottomgrid;
 	private HBox 				nexthbox,gaphbox,sethbox,startgaphbox,settinggaphbox;
-	private Button 				nextb,setb,detailb,entryb,backb,addDept1,rmdept1,addDivb2,rmdivb2;
+	private Button 				nextb,setb,detailb,entryb,backb,addDept1,rmdept1,addDivb2,rmdivb2,finishb;
 	private ComboBox<String> 	deptbox,divbox,prd1,prd2,prd3,prd4,prd5,prd6;
 	private TextField 			setdepttextf,setdivtextf;
 	private Connection 			connection = null;
@@ -31,6 +33,7 @@ public class main extends Application{
 	private ResultSet 			rs;
 	private String				name,deptfield,divfield,deptname,divname;
 	private int					flag;
+	private DatePicker			datePicker;
 	
 	
 	public static void main(String args[]) {
@@ -115,7 +118,6 @@ public class main extends Application{
 	
 	public void entryView(final Stage primaryStage,final Statement statement) throws SQLException {
 		flag=0;
-		System.out.println(flag);
 		//COMBOBOX DECLARATION
 			
 			deptbox = new ComboBox<String>();
@@ -137,7 +139,6 @@ public class main extends Application{
 							deptname =deptbox.getValue();
 							loadDiv(statement,event,deptname);
 							flag=1;
-							System.out.println(flag);
 						} catch (SQLException e) {e.printStackTrace();}
 				}});
 			
@@ -148,7 +149,6 @@ public class main extends Application{
 					divname =divbox.getValue();
 					if(flag==1){
 						flag=2;
-					System.out.println(flag);
 					}
 				}
 			});
@@ -321,22 +321,41 @@ public class main extends Application{
 		
 			borderpane = new BorderPane();
 			toppane = new BorderPane();
+			bottompane = new BorderPane();
+			bottomgrid = new GridPane();
+			
+			nexthbox = new HBox();
 			
 			prd1= new ComboBox<String>();
 			prd2 = new ComboBox<String>();
+			prd3 = new ComboBox<String>();
+			prd4 = new ComboBox<String>();
+			prd5 = new ComboBox<String>();
+			prd6 = new ComboBox<String>();		
 			
-			prd1.getItems().add("neeli");
-			prd1.getItems().add("varsha");
+			datePicker = new DatePicker();
+			datePicker.setValue(LocalDate.now());
+			datePicker.setId("datePicker");
 			
 			prd1.setValue("period 1");
 			prd2.setValue("period 2");
+			prd3.setValue("period 3");
+			prd4.setValue("period 4");
+			prd5.setValue("period 5");
+			prd6.setValue("period 6");
 			
 			centergrid = new GridPane();
 			
 			centergrid.add(prd1, 0, 0);
 			centergrid.add(prd2, 0, 1);
+			centergrid.add(prd3, 0, 2);
+			centergrid.add(prd4, 0, 3);
+			centergrid.add(prd5, 0, 4);
+			centergrid.add(prd6, 0, 5);
 			
 			backb = new Button("back");
+			nextb = new Button("next");
+			finishb =  new Button("finish");
 			
 			backb.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -350,14 +369,22 @@ public class main extends Application{
 				}
 			});
 			
+			bottomgrid.add(nextb, 0, 0);
+			bottomgrid.add(finishb, 1, 0);
 			
+			nexthbox.getChildren().add(bottomgrid);
+			nexthbox.setPadding(new Insets(20));
+			
+			bottomgrid.setAlignment(Pos.CENTER);
 			centergrid.setAlignment(Pos.CENTER);
 			borderpane.setCenter(centergrid);
 			borderpane.setTop(toppane);
+			borderpane.setBottom(bottompane);
 			toppane.setLeft(backb);
+			toppane.setRight(datePicker);
+			bottompane.setRight(nexthbox);
 			
 			toppane.setPadding(new Insets(10));
-			
 			
 			scene = new Scene(borderpane,800,600);
 			scene.getStylesheets().add("css/stylesheet.css");
@@ -401,8 +428,7 @@ public class main extends Application{
 		
 	}
 
-	public void createTable(final Statement statement,String name) throws SQLException{	
-		System.out.println(name);
+	public void createTable(final Statement statement,String name) throws SQLException{
 		statement.executeUpdate("drop table if exists "+name);
 		statement.executeUpdate("create table if not exists "+ name + "(id integer,name string,hour int)");
 		System.out.println(name+" table updated");
