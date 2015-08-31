@@ -525,13 +525,16 @@ public class main extends Application{
 	}
 
 	public void createTable(final Statement statement,String name) throws SQLException{
-		statement.executeUpdate("drop table if exists "+name);
-		statement.executeUpdate("create table if not exists "+ name 
-				+ "(id integer,"
-				+ "teacher string,"
-				+ "day int,"
-				+ "month int,"
-				+ "year int,"
+		statement.executeUpdate("drop table if exists T");
+		statement.executeUpdate("create table if not exists T" 
+				+ "(id INTEGER,"
+				+ "prd1 STRING,"
+				+ "prd2 STRING,"
+				+ "prd3 STRING,"
+				+ "prd4 STRING,"
+				+ "prd5 STRING,"
+				+ "prd6 STRING,"
+				+ "date DATE,"
 				+ "dept string,"
 				+ "div string)");
 		System.out.println(name+" table updated");
@@ -555,13 +558,13 @@ public class main extends Application{
 		statement.executeUpdate("insert into "+deptname+" values("+1+",'"+prdlist[0]+"',"+Integer.parseInt(day)+","+Integer.parseInt(month)+","+Integer.parseInt(year)+",'"+deptname+"','"+divname+"')");
 		rs =statement.executeQuery("select * from "+deptname);
 		while(rs.next()) {
-			System.out.println(rs);
-//			System.out.println(rs.getString("teacher"));
-//			System.out.println(rs.getString("day"));
-//			System.out.println(rs.getString("month"));
-//			System.out.println(rs.getString("year"));
-//			System.out.println(rs.getString("dept"));
-//			System.out.println(rs.getString("div"));
+			System.out.println(rs.getString("id"));
+			System.out.println(rs.getString("teacher"));
+			System.out.println(rs.getString("day"));
+			System.out.println(rs.getString("month"));
+			System.out.println(rs.getString("year"));
+			System.out.println(rs.getString("dept"));
+			System.out.println(rs.getString("div"));
 		}
 		
 //		teacher string,"
